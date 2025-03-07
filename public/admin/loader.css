@@ -1,0 +1,85 @@
+/* Button Loader CSS Starts */
+
+.loading {
+    pointer-events: none;
+    cursor: not-allowed !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.loading::before {
+    display: block;
+    content: "";
+    opacity: 1;
+    border-radius: 50%;
+    width: 18px !important;
+    height: 18px !important;
+    transition: opacity 1s .5s;
+    animation: .8s linear infinite rotate;
+    border: 2px solid !important;
+    border-left-color: transparent !important;
+    border-right-color: transparent !important;
+    border-top-color: white !important;
+    border-bottom-color: white !important;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0)
+    }
+
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
+
+/* Button Loader CSS Ends */
+
+.section-loader {
+    position: relative;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.section-loader::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 4;
+    user-select: none;
+    pointer-events: none;
+    background-color: rgba(0, 0, 0, .1);
+}
+
+.section-loader::before {
+    content: "";
+    position: absolute;
+    top: calc(50% - 20px);
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    z-index: 5;
+    opacity: 1;
+    transition: opacity 1s .5s;
+    animation: .8s linear infinite rotate;
+    border: 5px solid #000000;
+    border-left-color: transparent;
+    border-right-color: transparent;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0)
+    }
+
+    100% {
+        transform: rotate(360deg)
+    }
+}
