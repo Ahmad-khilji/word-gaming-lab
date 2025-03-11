@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('five_word_games', function (Blueprint $table) {
+        Schema::create('themes', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('letter')->nullable();
-            $table->string('date')->nullable();
-            $table->string('theme')->nullable();
+            $table->string('theme_name')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('five_word_games');
+        Schema::dropIfExists('themes');
     }
 };

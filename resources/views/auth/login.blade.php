@@ -13,6 +13,7 @@
   <link href="{{asset('admin/assets/img/apple-touch-icon.png')}}" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Nunito:300,400,600,700|Poppins:300,400,500,600,700" rel="stylesheet">
 
@@ -53,59 +54,34 @@
 
                   <form method="POST" action="{{ route('login') }}" class="row g-3 needs-validation" novalidate>
                     @csrf
-
+                
                     <!-- Email Address -->
                     <div class="col-12">
-                      <label for="email" class="form-label">Email</label>
-                      {{-- <div class="input-group has-validation"> --}}
-                        {{-- <span class="input-group-text" id="inputGroupPrepend">@</span> --}}
+                        <label for="email" class="form-label">Email</label>
                         <input type="email" name="email" class="form-control" id="email" :value="old('email')" required autofocus autocomplete="username">
-                        {{-- <div class="invalid-feedback">Please enter your email.</div> --}}
                         @error('email')
-                          <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                      {{-- </div> --}}
-                    </div>
-
-                    <!-- Password -->
-                    <div class="col-12">
-                      <label for="password" class="form-label">Password</label>
-                      <input type="password" name="password" class="form-control" id="password" required autocomplete="current-password">
-                      {{-- <div class="invalid-feedback">Please enter your password!</div> --}}
-                      @error('password')
                         <div class="text-danger small">{{ $message }}</div>
-                      @enderror
+                        @enderror
                     </div>
-
-                    <!-- Remember Me -->
-                    {{-- <div class="col-12">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" id="rememberMe">
-                        <label class="form-check-label" for="rememberMe">Remember me</label>
-                      </div>
-                    </div> --}}
-
-                    {{-- <div class="col-12 d-flex justify-content-between align-items-center">
-                      @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-sm">Forgot your password?</a>
-                      @endif
-                    </div> --}}
-
+                
+                    <!-- Password Field with Eye Icon -->
+                    <div class="col-12 position-relative">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" id="password" required autocomplete="current-password">
+                        <i class="toggle-password fa fa-eye position-absolute" onclick="togglePassword('password', this)" style="right: 20px; top: 44px; cursor: pointer;"></i>
+                        @error('password')
+                        <div class="text-danger small">{{ $message }}</div>
+                        @enderror
+                    </div>
+                
                     <div class="col-12">
-                      <button class="btn btn-primary w-100" type="submit">Login</button>
+                        <button class="btn btn-primary w-100" type="submit">Login</button>
                     </div>
-
-                    {{-- <div class="col-12 text-center">
-                      <p class="small mb-0">Don't have an account? <a href="{{ route('register') }}">Create one</a></p>
-                    </div> --}}
-                  </form>
+                </form>
 
                 </div>
               </div>
 
-              {{-- <div class="credits">
-                Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
-              </div> --}}
 
             </div>
           </div>
@@ -119,7 +95,20 @@
   <!-- Vendor JS Files -->
   <script src="{{asset('admin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
   <script src="{{asset('admin/assets/js/main.js')}}"></script>
-
+  <script>
+    function togglePassword(fieldId, icon) {
+        let field = document.getElementById(fieldId);
+        if (field.type === "password") {
+            field.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            field.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+</script>
 </body>
 
 </html>

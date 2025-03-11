@@ -7,7 +7,12 @@
               <span>Dashboard</span>
           </a>
       </li><!-- End Dashboard Nav -->
-
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('super_admin.theme.index') ? 'active' : '' }}" href="{{ route('super_admin.theme.index') }}">
+            <i class="bi bi-menu-button-wide"></i>
+            <span>Setting</span>
+        </a>
+    </li>
       <!-- Game Setting Nav -->
       @php
           $gameRoutes = [

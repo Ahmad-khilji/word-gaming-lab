@@ -4,10 +4,13 @@ use App\Http\Controllers\Admin\FiveWordController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\SevenWordController;
 use App\Http\Controllers\Admin\SixWordController;
+use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\ThreeWordController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
+use App\Imports\ThreeWordImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,6 +36,7 @@ Route::prefix('super_admin')->as('super_admin.')->middleware(['auth', 'verified'
         Route::post('store', [ThreeWordController::class, 'store'])->name('store');
         Route::post('update/{id}', [ThreeWordController::class, 'update'])->name('update');
         Route::post('delete', [ThreeWordController::class, 'delete'])->name('delete');
+        Route::post('/import-threeword', [ThreeWordController::class, 'importThreeWord'])->name('import');
     });
 
     Route::prefix('fiveword')->as('fiveword.')->group(function () {
@@ -40,6 +44,8 @@ Route::prefix('super_admin')->as('super_admin.')->middleware(['auth', 'verified'
         Route::post('store', [FiveWordController::class, 'store'])->name('store');
         Route::post('update/{id}', [FiveWordController::class, 'update'])->name('update');
         Route::post('delete', [FiveWordController::class, 'delete'])->name('delete');
+        Route::post('/import-fiveword', [FiveWordController::class, 'importFiveWord'])->name('import');
+
     });
 
     Route::prefix('sevenword')->as('sevenword.')->group(function () {
@@ -47,8 +53,15 @@ Route::prefix('super_admin')->as('super_admin.')->middleware(['auth', 'verified'
         Route::post('store', [SevenWordController::class, 'store'])->name('store');
         Route::post('update/{id}', [SevenWordController::class, 'update'])->name('update');
         Route::post('delete', [SevenWordController::class, 'delete'])->name('delete');
+        Route::post('/import-sevenword', [SevenWordController::class, 'importSevenWord'])->name('import');
     });
+    Route::prefix('theme')->as('theme.')->group(function () {
+        Route::get('/', [ThemeController::class, 'index'])->name('index');
+        Route::post('store', [ThemeController::class, 'store'])->name('store');
+        Route::post('update/{id}', [ThemeController::class, 'update'])->name('update');
+        Route::post('delete', [ThemeController::class, 'delete'])->name('delete');
 
+    });
     
 });
 

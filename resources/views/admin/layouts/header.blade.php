@@ -4,7 +4,7 @@
     <div class="d-flex align-items-center justify-content-between">
       <a href="{{route('super_admin.index')}}" class="logo d-flex align-items-center">
         {{-- <img src="{{asset('admin/assets/img/solar.png')}}" alt=""> --}}
-        <span class="d-none d-lg-block">Word Gaming Lab</span>
+        <span class="d-none d-lg-block">Word Lab</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->

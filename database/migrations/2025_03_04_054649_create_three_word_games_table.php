@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('letter')->nullable();
             $table->string('date')->nullable();
-            $table->integer('theme')->nullable();
+            $table->string('theme')->nullable();
             $table->timestamps();
         });
     }

@@ -91,21 +91,33 @@ class WordController extends Controller
 
     public function fetchAll()
     {
-        $threeWord = ThreeWordGame::latest()->get();
-        $fiveWord = FiveWordGame::latest()->get();
-        $sixWord = SevenWordGame::latest()->get();
-
-        if ($threeWord->isEmpty() && $fiveWord->isEmpty() && $sixWord->isEmpty()) {
+        $threeWord = ThreeWordGame::with('themeData:id,theme_name')->latest()->get();
+        $fiveWord = FiveWordGame::with('themeData:id,theme_name')->latest()->get();
+        $sevenWord = SevenWordGame::with('themeData:id,theme_name')->latest()->get();
+    
+        if ($threeWord->isEmpty() && $fiveWord->isEmpty() && $sevenWord->isEmpty()) {
             return $this->ErrorResponse('Not Found Record');
         }
-
+    
         return $this->SuccessResponse(message: 'Word List', data: [
-            'threeletter' => $threeWord,
-            'fiveletters' => $fiveWord,
-            'sevenletters' => $sixWord
+            'threeletter' => $this->formatWords($threeWord),
+            'fiveletters' => $this->formatWords($fiveWord),
+            'sevenletters' => $this->formatWords($sevenWord)
         ]);
     }
-
+    private function formatWords($words)
+    {
+        return $words->map(function ($word) {
+            return [
+                'id' => $word->id,
+                'letter' => $word->letter,
+                'date' => $word->date,
+                'theme' => $word->themeData ? $word->themeData->theme_name : null,
+                'created_at' => $word->created_at,
+                'updated_at' => $word->updated_at
+            ];
+        });
+    }
     public function getUserStatistics()
     {
         try {
