@@ -33,19 +33,19 @@
               <li class="nav-item">
                   <a class="nav-link {{ request()->routeIs('super_admin.threeword.index') ? 'active' : '' }}" href="{{ route('super_admin.threeword.index') }}">
                       <i class="bi bi-menu-button-wide"></i>
-                      <span>Three Word Game</span>
+                      <span>Three Letter</span>
                   </a>
               </li>
               <li class="nav-item">
                   <a class="nav-link {{ request()->routeIs('super_admin.fiveword.index') ? 'active' : '' }}" href="{{ route('super_admin.fiveword.index') }}">
                       <i class="bi bi-menu-button-wide"></i>
-                      <span>Five Word Game</span>
+                      <span>Five Letter</span>
                   </a>
               </li>
               <li class="nav-item">
                   <a class="nav-link {{ request()->routeIs('super_admin.sevenword.index') ? 'active' : '' }}" href="{{ route('super_admin.sevenword.index') }}">
                       <i class="bi bi-menu-button-wide"></i>
-                      <span>Seven Word Game</span>
+                      <span>Seven Letter</span>
                   </a>
               </li>
           </ul>

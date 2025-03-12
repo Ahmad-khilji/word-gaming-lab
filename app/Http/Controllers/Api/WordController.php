@@ -89,11 +89,12 @@ class WordController extends Controller
         }
     }
 
-    public function fetchAll()
+    public function fetchdataAll()
     {
-        $threeWord = ThreeWordGame::with('themeData:id,theme_name')->latest()->get();
-        $fiveWord = FiveWordGame::with('themeData:id,theme_name')->latest()->get();
-        $sevenWord = SevenWordGame::with('themeData:id,theme_name')->latest()->get();
+        $threeWord = ThreeWordGame::with('themeData:id,theme_name')->get();
+        // return($threeWord);
+        $fiveWord = FiveWordGame::with('themeData:id,theme_name')->get();
+        $sevenWord = SevenWordGame::with('themeData:id,theme_name')->get();
     
         if ($threeWord->isEmpty() && $fiveWord->isEmpty() && $sevenWord->isEmpty()) {
             return $this->ErrorResponse('Not Found Record');
@@ -105,6 +106,61 @@ class WordController extends Controller
             'sevenletters' => $this->formatWords($sevenWord)
         ]);
     }
+
+    public function fetchAll($type)
+    {
+        $data = [];
+        if ($type === 'three') {
+            $words = ThreeWordGame::with(['themeData:id,theme_name'])->latest()->get();
+            $data['threeletters'] = $this->formatWordsWithThemeIndex($words);
+        } elseif ($type === 'five') {
+            $words = FiveWordGame::with(['themeData:id,theme_name'])->latest()->get();
+            $data['fiveletters'] = $this->formatWordsWithThemeIndex($words);
+        } elseif ($type === 'seven') {
+            $words = SevenWordGame::with(['themeData:id,theme_name'])->latest()->get();
+            $data['sevenletters'] = $this->formatWordsWithThemeIndex($words);
+        } else {
+            return $this->ErrorResponse('Invalid type parameter');
+        }
+    
+        if (empty($data[$type . 'letters'])) {
+            return $this->ErrorResponse('Not Found Record');
+        }
+    
+        return $this->SuccessResponse(message: ucfirst($type) . ' Letter Words', data: $data);
+    }
+    
+    /**
+     * Format words and add theme index
+     */
+    private function formatWordsWithThemeIndex($words)
+    {
+        // Define theme order
+        $themesOrder = [
+            'General' => 1,
+            'Spring' => 2,
+            'Summer' => 3,
+            'Science' => 4,
+            'Nature' => 5,
+            'Explore' => 6,
+            'Mystery' => 7
+        ];
+    
+        return $words->map(function ($word) use ($themesOrder) {
+            $themeName = $word->themeData->theme_name ?? null;
+            return [
+                'id' => $word->id,
+                'letter' => $word->letter,
+                'date' => $word->created_at->format('Y-m-d'),
+                'theme' => $themeName,
+                'theme_index' => $themesOrder[$themeName] ?? null, 
+                'created_at' => $word->created_at,
+                'updated_at' => $word->updated_at,
+            ];
+        });
+    }
+    
+
     private function formatWords($words)
     {
         return $words->map(function ($word) {

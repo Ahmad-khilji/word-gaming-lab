@@ -8,10 +8,6 @@
   <meta content="" name="description">
   <meta content="" name="keywords">
 
-  <!-- Favicons -->
-  <link href="{{asset('admin/assets/img/favicon.png')}}" rel="icon">
-  <link href="{{asset('admin/assets/img/apple-touch-icon.png')}}" rel="apple-touch-icon">
-
   <!-- Google Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -38,8 +34,8 @@
 
               <div class="d-flex justify-content-center py-4">
                 <a href="/" class="logo d-flex align-items-center w-auto">
-                  {{-- <img src="{{asset('admin/assets/img/solar.png')}}" alt=""> --}}
-                  <span class="d-none d-lg-block">Word Gaming Lab</span>
+                  <img src="{{asset('admin/assets/img/word-logo.png')}}" alt="" style="width: 250px; max-height:100px;">
+                  {{-- <span class="d-none d-lg-block">Word Lab</span> --}}
                 </a>
               </div>
 
