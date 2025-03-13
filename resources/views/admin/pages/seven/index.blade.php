@@ -4,8 +4,7 @@
 @endsection
 @section('content')
     <div class="pagetitle d-flex justify-content-between">
-        <h1>Seven Word Game</h1>
-
+       
         @if (session('error'))
         <script>
             document.addEventListener("DOMContentLoaded", function() {
@@ -32,16 +31,6 @@
             });
         </script>
     @endif
-
-    <form id="uploadForm" class="d-flex justify-content-end mb-3" action="{{ route('super_admin.sevenword.import') }}"
-        method="POST" enctype="multipart/form-data">
-        @csrf
-        <button type="button" class="btn btn-success" id="importCsvBtn"style="width: 167px; height: 46px;">Import CSV</button>
-        <input class="form-control d-none" id="formFile" type="file" name="file" accept=".csv" required>
-    </form>
-
-
-
     </div>
 
     <!-- create new category modal -->
@@ -49,8 +38,8 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitleCreate">Create New Seven Word</h5>
-                    <h5 style="display: none;" class="modal-title" id="modalTitleupdate">Edit Seven Word</h5>
+                    <h5 class="modal-title" id="modalTitleCreate">Create Seven Letter</h5>
+                    <h5 style="display: none;" class="modal-title" id="modalTitleupdate">Edit Seven Letter</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -86,9 +75,9 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="savesevenWord()" id="saveCategoryLoader">Save
-                        Seven Word</button>
+                        Seven Letter</button>
                     <button style="display: none;" type="button" class="btn btn-primary" onclick="updatesevenWord()"
-                        id="updateCategoryLoader">Update Seven Word</button>
+                        id="updateCategoryLoader">Update Seven Letter</button>
                 </div>
             </div>
         </div>
@@ -99,7 +88,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Seven Word</h5>
+                    <h5 class="modal-title">Edit Seven Letter</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -134,7 +123,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="updatesevenWord()"
-                        id="updateCategoryLoader">Update Seven Word</button>
+                        id="updateCategoryLoader">Update Seven Letter</button>
                 </div>
             </div>
         </div>
@@ -144,7 +133,7 @@
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete Seven Word</h5>
+                    <h5 class="modal-title">Confirm Delete Seven Letter</h5>
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -168,13 +157,19 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                {{-- <h5 class="card-title">Company Six Word</h5> --}}
+                        <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                            <div class="class pagetitle">
+                                <h1>Seven Letter Game</h1>
                             </div>
+                            <form id="uploadForm" class="d-flex justify-content-end " action="{{ route('super_admin.sevenword.import') }}"
+                            method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <button type="button" class="btn btn-success" id="importCsvBtn"style="width: 167px; height: 35px;">Import CSV</button>
+                            <input class="form-control d-none" id="formFile" type="file" name="file" accept=".csv" required>
+                        </form>
                             <div class="mt-3 mb-3">
                                 <button data-bs-toggle="modal" data-bs-target="#createNewCategory" type="button"
-                                    name="button" class="btn btn-primary">Create New Seven Word</button>
+                                    name="button" class="btn btn-primary">Create Seven Letter</button>
                             </div>
                         </div>
                         <!-- Table with stripped rows -->

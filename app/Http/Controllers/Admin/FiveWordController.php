@@ -21,7 +21,7 @@ class FiveWordController extends Controller
             $themes = Theme::pluck('theme_name', 'id')->toArray();
 
 
-            $data = FiveWordGame::latest()->get();
+            $data = FiveWordGame::get();
 
             return DataTables::of($data)
                 ->editColumn('theme', function ($row) use ($themes) {

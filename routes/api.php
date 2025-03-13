@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/fetch/all', [WordController::class, 'fetchdataAll']);
-Route::get('/words/{type}', [WordController::class, 'fetchAll']);
+Route::get('/words/all', [WordController::class, 'fetchAll']);
 Route::post('/user/attempt', [WordController::class, 'userAttempt']);
 Route::get('/game/statistics', [WordController::class, 'getStatistics']);
 Route::get('/get/user/statistics', [WordController::class, 'getUserStatistics']);

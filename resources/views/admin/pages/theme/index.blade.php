@@ -3,9 +3,7 @@
     Admin Dashboard
 @endsection
 @section('content')
-    <div class="pagetitle">
-        <h1>Three Word Game</h1>
-    </div>
+  
 
     <!-- create new category modal -->
     <div class="modal fade" id="createNewCategory" tabindex="-1">
@@ -26,12 +24,13 @@
                         </div>
                         <div class="col-6">
                             <label for="start_date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="start_date">
+                            <input type="date" class="form-control" id="start_date" onchange="setMinEndDate()">
                         </div>
                         <div class="col-6">
                             <label for="end_date" class="form-label">End Date</label>
                             <input type="date" class="form-control" id="end_date">
                         </div>
+
 
                     </form>
                     <!-- Vertical Form -->
@@ -39,7 +38,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="saveTheme()" id="saveCategoryLoader">Save
-                       Theme</button>
+                        Theme</button>
                     <button style="display: none;" type="button" class="btn btn-primary" onclick="updateTheme()"
                         id="updateCategoryLoader">Update Theme</button>
                 </div>
@@ -77,8 +76,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="updateTheme()"
-                        id="updateCategoryLoader">Update Theme</button>
+                    <button type="button" class="btn btn-primary" onclick="updateTheme()" id="updateCategoryLoader">Update
+                        Theme</button>
                 </div>
             </div>
         </div>
@@ -111,14 +110,14 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                {{-- <h5 class="card-title">Company Three Word</h5> --}}
-                            </div>
-                            <div class="mt-3 mb-3">
-                                <button data-bs-toggle="modal" data-bs-target="#createNewCategory" type="button"
+                        <div class="d-flex justify-content-between mt-3 mb-3 align-items-center">
+                           
+                                <div class="pagetitle">
+                                    <h1>Add New Theme</h1>
+                                </div>
+                                <button data-bs-toggle="modal" onclick="openCreateThemeModal()" data-bs-target="#createNewCategory" type="button"
                                     name="button" class="btn btn-primary">Create New Theme</button>
-                            </div>
+                           
                         </div>
                         <!-- Table with stripped rows -->
                         <table id="category-table" class="table">
@@ -179,47 +178,97 @@
                         name: 'action',
                         orderable: false,
                         searchable: false,
-                        className: "text-center" 
+                        className: "text-center"
 
                     }
                 ]
             });
         });
 
+        function setMinEndDate() {
+            let startDate = document.getElementById('start_date').value;
+            document.getElementById('end_date').min = startDate;
+        }
+
+
+        function openCreateThemeModal() {
+            $('#modalTitleCreate').show();
+            $('#modalTitleupdate').hide();
+            $('#saveCategoryLoader').show();
+            $('#updateCategoryLoader').hide();
+
+            // Inputs reset
+            $('#theme_name').val('');
+            $('#start_date').val('');
+            $('#end_date').val('');
+
+            // Fetch last theme's end_date
+            $.ajax({
+                url: "{{ route('super_admin.theme.getLastThemeDate') }}",
+                type: "GET",
+                success: function(response) {
+                    console.log("Response from server:", response); // Debugging line
+
+                    if (response.success && response.end_date) {
+                        let nextStartDate = new Date(response.end_date);
+                        nextStartDate.setDate(nextStartDate.getDate() + 1);
+
+                        let formattedDate = nextStartDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+                        console.log("Formatted Start Date:", formattedDate); // Debugging line
+
+                        $('#start_date').val(formattedDate);
+                        $('#start_date').attr("min", formattedDate);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", error);
+                }
+            });
+
+
+            // Open modal
+            $('#createNewCategory').modal('show');
+        }
+
+
         function saveTheme() {
-            // Get form data
             $('#saveCategoryLoader').addClass('loading');
+
             const theme_name = $('#theme_name').val();
             const start_date = $('#start_date').val();
             const end_date = $('#end_date').val();
 
-            // Prepare FormData
+            if (new Date(start_date) >= new Date(end_date)) {
+                toastifyError('End Date must be greater than Start Date.');
+                $('#saveCategoryLoader').removeClass('loading');
+                return;
+            }
+
             let formData = new FormData();
             formData.append('theme_name', theme_name);
             formData.append('start_date', start_date);
             formData.append('end_date', end_date);
+
             let url = "{{ route('super_admin.theme.store') }}";
 
-            // AJAX Request
             $.ajax({
                 type: "POST",
                 url: url,
                 data: formData,
-                contentType: false, // Required for FormData
-                processData: false, // Prevent jQuery from processing the data
+                contentType: false,
+                processData: false,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     $('#saveCategoryLoader').removeClass('loading');
                     if (response.status) {
-                        // Success response
                         $('#theme_name').val('');
                         $('#start_date').val('');
                         $('#end_date').val('');
-                        $('#createNewCategory').modal('hide'); // Hide modal
-                        toastifySuccess(response.message); // Display success message
-                        table.draw(); // Reload data table
+                        $('#createNewCategory').modal('hide');
+                        toastifySuccess(response.message);
+                        table.draw();
                     } else {
                         toastifyError(response.message || 'Something went wrong.');
                     }
@@ -241,6 +290,8 @@
                 },
             });
         }
+
+
 
         function editModal(id, theme_name, start_date, end_date) {
             $('#updateCategoryLoader').attr('data-id', id);
@@ -257,6 +308,21 @@
             const start_date = $('#start_date_edit').val();
             const end_date = $('#end_date_edit').val();
 
+            // Get today's date in YYYY-MM-DD format
+            let today = new Date().toISOString().split('T')[0];
+
+            // Validation Rules
+            if (start_date < today) {
+                toastifyError("Start date cannot be in the past.");
+                $('#updateCategoryLoader').removeClass('loading');
+                return;
+            }
+
+            if (end_date < start_date) {
+                toastifyError("End date cannot be earlier than the start date.");
+                $('#updateCategoryLoader').removeClass('loading');
+                return;
+            }
 
             // Prepare FormData
             let formData = new FormData();
@@ -266,23 +332,23 @@
             let id = $('#updateCategoryLoader').attr("data-id");
             let routeTemplate = "{{ route('super_admin.theme.update', ['id' => ':id']) }}";
             let url = routeTemplate.replace(':id', id);
+
             // AJAX Request
             $.ajax({
                 type: "POST",
                 url: url,
                 data: formData,
-                contentType: false, // Required for FormData
-                processData: false, // Prevent jQuery from processing the data
+                contentType: false,
+                processData: false,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     $('#updateCategoryLoader').removeClass('loading');
                     if (response.status) {
-                        // Success response
-                        $('#editCategoryModal').modal('hide'); // Hide modal
-                        toastifySuccess(response.message); // Display success message
-                        table.draw(); // Reload data table
+                        $('#editCategoryModal').modal('hide');
+                        toastifySuccess(response.message);
+                        table.draw();
                     } else {
                         toastifyError(response.message || 'Something went wrong.');
                     }
@@ -304,6 +370,7 @@
                 },
             });
         }
+
 
         function deleteModal(id, name) {
             $('#deleteCategoryLoader').attr('data-id', id);

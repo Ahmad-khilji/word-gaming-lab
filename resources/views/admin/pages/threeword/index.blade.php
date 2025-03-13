@@ -4,42 +4,36 @@
 @endsection
 @section('content')
     <div class="pagetitle d-flex justify-content-between ">
-        <h1>Three Word Game</h1>
-       
+
+
         @if (session('error'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    title: "Error!",
-                    text: "{{ session('error') }}",
-                    icon: "error",
-                    confirmButtonText: "OK"
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "{{ session('error') }}",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
                 });
-            });
-        </script>
-    @endif
+            </script>
+        @endif
 
 
-    @if (session('success'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    title: "Success!",
-                    text: "{{ session('success') }}",
-                    icon: "success",
-                    confirmButtonText: "OK"
+        @if (session('success'))
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    Swal.fire({
+                        title: "Success!",
+                        text: "{{ session('success') }}",
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    });
                 });
-            });
-        </script>
-    @endif
+            </script>
+        @endif
 
-    <form id="uploadForm" class="d-flex justify-content-end mb-3" action="{{ route('super_admin.threeword.import') }}"
-        method="POST" enctype="multipart/form-data">
-        @csrf
-        <button type="button" class="btn btn-success" id="importCsvBtn" style="width: 167px;
-    height: 46px;">Import CSV</button>
-        <input class="form-control d-none" id="formFile" type="file" name="file" accept=".csv" required>
-    </form>
+
     </div>
 
     <!-- create new category modal -->
@@ -47,8 +41,8 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitleCreate">Create New Three Word</h5>
-                    <h5 style="display: none;" class="modal-title" id="modalTitleupdate">Edit Three Word</h5>
+                    <h5 class="modal-title" id="modalTitleCreate">Create Three Letter</h5>
+                    <h5 style="display: none;" class="modal-title" id="modalTitleupdate">Edit Three Letter</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -76,16 +70,16 @@
                                 <label for="theme" class="form-label">Theme</label>
                             </div>
                         </div>
-                        
+
                     </form>
                     <!-- Vertical Form -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="savethreeWord()" id="saveCategoryLoader">Save
-                        Three Word</button>
+                        Three Letter</button>
                     <button style="display: none;" type="button" class="btn btn-primary" onclick="updatethreeWord()"
-                        id="updateCategoryLoader">Update hree Word</button>
+                        id="updateCategoryLoader">Update Three Letter</button>
                 </div>
             </div>
         </div>
@@ -96,7 +90,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Three Word</h5>
+                    <h5 class="modal-title">Edit Three Letter</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -124,14 +118,14 @@
                                 <label for="theme_edit" class="form-label">Theme</label>
                             </div>
                         </div>
-                        
+
 
                     </form><!-- Vertical Form -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="updatethreeWord()"
-                        id="updateCategoryLoader">Update Three Word</button>
+                        id="updateCategoryLoader">Update Three Letter</button>
                 </div>
             </div>
         </div>
@@ -141,7 +135,7 @@
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete Three Word</h5>
+                    <h5 class="modal-title">Confirm Delete Three Letter</h5>
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -159,7 +153,7 @@
     </div>
 
 
-  
+
 
 
 
@@ -169,13 +163,24 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                {{-- <h5 class="card-title">Company Three Word</h5> --}}
+                        <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                            <div class="class pagetitle">
+                                <h1>Three Letter Game</h1>
                             </div>
+
+                            <form id="uploadForm" class="d-flex justify-content-end"
+                                action="{{ route('super_admin.threeword.import') }}" method="POST"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <button type="button" class="btn btn-success" id="importCsvBtn"
+                                    style="width: 167px;height: 35px;">Import
+                                    CSV</button>
+                                <input class="form-control d-none" id="formFile" type="file" name="file"
+                                    accept=".csv" required>
+                            </form>
                             <div class="mt-3 mb-3">
                                 <button data-bs-toggle="modal" data-bs-target="#createNewCategory" type="button"
-                                    name="button" class="btn btn-primary">Create New Three Word</button>
+                                    name="button" class="btn btn-primary">Create Three Letter</button>
                             </div>
                         </div>
                         <!-- Table with stripped rows -->
@@ -270,7 +275,7 @@
                         name: 'action',
                         orderable: false,
                         searchable: false,
-                        className: "text-center" 
+                        className: "text-center"
 
                     }
                 ]

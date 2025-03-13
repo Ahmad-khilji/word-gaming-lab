@@ -60,6 +60,8 @@ Route::prefix('super_admin')->as('super_admin.')->middleware(['auth', 'verified'
         Route::post('store', [ThemeController::class, 'store'])->name('store');
         Route::post('update/{id}', [ThemeController::class, 'update'])->name('update');
         Route::post('delete', [ThemeController::class, 'delete'])->name('delete');
+        Route::get('/get-last-theme-date', [ThemeController::class, 'getLastThemeDate'])->name('getLastThemeDate');
+
 
     });
     

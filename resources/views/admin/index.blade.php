@@ -21,10 +21,10 @@
 </style>
 
 @section('content')
-<div class="pagetitle d-flex justify-content-between">
-    <h1>Dashboard</h1>
-    <input type="date" class="form-control" id="date" style="width: 25%">
-</div>
+    <div class="pagetitle d-flex justify-content-between">
+        <h1>Dashboard</h1>
+
+    </div>
 
 
 
@@ -37,12 +37,14 @@
 
                 <div class="panel panel-border panel-primary">
                     <div class="panel-body">
-                        <h3>User Statistics</h3>
-                        <div class="pagetitle d-flex gap-3 align-items-center">
-                            <h1>Today Date</h1>
-                            <p class="mb-0">{{ \Carbon\Carbon::today()->format('F d, Y') }}</p>
+                        <div class="class d-flex justify-content-between align-items-center mt-3 mb-3">
+                            <h3>User Statistics</h3>
+                            <div class="pagetitle d-flex gap-3 align-items-center">
+                                <h1>Today Date</h1>
+                                <p class="mb-0">{{ \Carbon\Carbon::today()->format('F d, Y') }}</p>
+                            </div>
+                            <input type="date" class="form-control" id="date" style="width: 25%">
                         </div>
-
                         <table class="table">
                             <thead>
                                 <tr>
@@ -64,7 +66,19 @@
                             </tbody>
 
                         </table>
-                        <p id="total-games" class="d-flex justify-content-around"></p> <!-- Yahan Total Games Show Hoga -->
+                        <div class="card text-center mt-3 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Game Statistics</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p class="fw-bold mb-0">Total Games: <span
+                                            class="badge bg-primary">{!! json_encode($totalGames) !!}</span></p>
+                                    <p class="fw-bold mb-0">Wins: <span
+                                            class="badge bg-success">{!! json_encode($wins) !!}</span></p>
+                                    <p class="fw-bold mb-0">Losses: <span
+                                            class="badge bg-danger">{!! json_encode($losses) !!}</span></p>
+                                </div>
+                            </div>
+                        </div>
 
 
 
@@ -130,30 +144,29 @@
                     </div>
                 </div>
             </div>
-            
-            
-            
-            
+
+
+
+
         </div>
         {{-- <div id="cha</div>rtdivtwo"></div> --}}
     </section>
 @endsection
 
 @section('scripts')
+    <script>
+        $(document).ready(function() {
+            // Handle date change event
+            $('#date').on('change', function() {
+                let selectedDate = $(this).val();
+                window.location.href = "{{ route('super_admin.index') }}?date=" + selectedDate;
+            });
 
-<script>
-    $(document).ready(function() {
-        // Handle date change event
-        $('#date').on('change', function() {
-            let selectedDate = $(this).val();
-            window.location.href = "{{ route('super_admin.index') }}?date=" + selectedDate;
+            // Set the selected date in the input field
+            let selectedDate = "{{ $selectedDate }}";
+            $('#date').val(selectedDate);
         });
-
-        // Set the selected date in the input field
-        let selectedDate = "{{ $selectedDate }}";
-        $('#date').val(selectedDate);
-    });
-</script>
+    </script>
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
@@ -164,7 +177,11 @@
     <!-- Chart code -->
     <script>
         am5.ready(function() {
+            // Get winRate and lossRate from Laravel
+            let winRate = {!! json_encode($winRate) !!};
+            let lossRate = {!! json_encode($lossRate) !!};
 
+            // Create the chart
             var root = am5.Root.new("chartdivone");
 
             root.setThemes([am5themes_Animated.new(root)]);
@@ -192,24 +209,16 @@
                 ]
             }));
 
-            // Laravel se dynamic values pass karo
+            // Pass dynamic values from Laravel
             series.data.setAll([{
                     category: "Win Rate (%)",
-                    value: {!! json_encode($winRate) !!}
+                    value: winRate
                 },
                 {
                     category: "Loss Rate (%)",
-                    value: {!! json_encode($lossRate) !!}
+                    value: lossRate
                 }
             ]);
-
-            // ✅ Show Total Wins & Losses in UI
-            document.getElementById('total-games').innerHTML = `
-    <p>Total Games Played: {!! json_encode($totalGames) !!}</p>
-    <p>Total Wins: {!! json_encode($wins) !!}</p>
-    <p>Total Losses: {!! json_encode($losses) !!}</p>
-`;
-
 
             var legend = chart.children.push(am5.Legend.new(root, {
                 centerX: am5.percent(50),
@@ -222,12 +231,24 @@
 
             series.appear(1000, 100);
 
+            // Check if both winRate and lossRate are 0
+            if (winRate === 0 && lossRate === 0) {
+                // Display "No records found" message below the chart
+                let noRecordsMessage = document.createElement('p');
+                noRecordsMessage.className = 'text-center';
+                noRecordsMessage.style.marginTop = '20px';
+                noRecordsMessage.style.color = '#dc3545'; // Red color for emphasis
+                noRecordsMessage.textContent = 'No records found for the selected date.';
+
+                // Append the message below the chart container
+                document.getElementById('chartdivone').appendChild(noRecordsMessage);
+            }
         });
     </script>
 
     <script>
         $(document).ready(function() {
-            let data = [                {
+            let data = [{
                     label: '3-Letter',
                     value: {{ $averageAttempts['threeLetter'] }}
                 },
@@ -266,8 +287,7 @@
 
     <script>
         $(document).ready(function() {
-            let attemptData = [
-                {
+            let attemptData = [{
                     label: '3-Letter',
                     value: {{ $averageAttempts['threeLetter'] }}
                 },

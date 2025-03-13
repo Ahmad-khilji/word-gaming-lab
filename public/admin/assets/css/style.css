@@ -602,7 +602,7 @@ h6 {
   top: 60px;
   left: 0;
   bottom: 0;
-  width: 300px;
+  width: 230px;
   z-index: 996;
   transition: all 0.3s;
   padding: 20px;
@@ -612,7 +612,9 @@ h6 {
   box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1);
   background-color: #fff;
 }
-
+.dataTables_wrapper .dataTables_filter input {
+  width: 750px;
+}
 @media (max-width: 1199px) {
   .sidebar {
     left: -300px;
@@ -633,7 +635,7 @@ h6 {
 
   #main,
   #footer {
-    margin-left: 300px;
+    margin-left: 230px;
   }
 }
 

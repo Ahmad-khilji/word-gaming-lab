@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FiveWordGame;
 use App\Models\Game;
 use App\Models\SevenWordGame;
+use App\Models\Theme;
 use App\Models\ThreeWordGame;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class WordController extends Controller
 {
     use ResponseTrait;
 
-    public function userAttempt(Request $request)
+   public function userAttempt(Request $request)
     {
         $request->validate([
             'target_word' => [
@@ -26,15 +27,16 @@ class WordController extends Controller
                 'regex:/^\w{3}$|^\w{5}$|^\w{7}$/',
             ],
             'attempts' => 'required|integer|max:500',
-            'is_won' => 'required',
-            'time_taken' => 'required',
+            'is_won' => 'required|boolean',
+            'time_taken' => 'required|string',
             'selected_word' => 'required|integer|in:3,5,7',
         ], [
             'target_word.regex' => 'The target word must be exactly 3, 5, or 7 characters long.',
         ]);
-
+    
         DB::beginTransaction();
         try {
+            // Naya record insert karna
             $userAttempt = Game::create([
                 'target_word' => $request->target_word,
                 'attempts' => $request->attempts,
@@ -42,21 +44,56 @@ class WordController extends Controller
                 'time_taken' => $request->time_taken,
                 'selected_word' => $request->selected_word,
             ]);
+    
+            $rank = null;
+            if ($userAttempt->is_won) {
+                // Jeetne wale users ko `attempts` aur `time_taken` ke mutabiq sort karna
+                $rankedUsers = Game::where('is_won', 1)
+                    ->orderBy('attempts', 'asc')
+                    ->orderBy('time_taken', 'asc')
+                    ->get(['id', 'attempts', 'time_taken']);
+    
+                // Rank Calculation (Dense Ranking)
+                $rank = 1;
+                $prevAttempts = null;
+                $prevTime = null;
+                $rankMapping = [];
+    
+                foreach ($rankedUsers as $index => $user) {
+                    if ($user->attempts !== $prevAttempts || $user->time_taken !== $prevTime) {
+                        $rank = $index + 1;
+                    }
+                    $rankMapping[$user->id] = $rank;
+                    $prevAttempts = $user->attempts;
+                    $prevTime = $user->time_taken;
+                }
+    
+                // Naye user ka rank find karna
+                $rank = $rankMapping[$userAttempt->id] ?? null;
+            }
+    
             DB::commit();
-
-            return $this->SuccessResponse(message: 'User Attempts successfully', data: $userAttempt);
+    
+            return $this->SuccessResponse(message: 'User Attempt recorded successfully', data: [
+                array_merge($userAttempt->toArray(), [
+                    'rank_message' => "You are the top " . $rank ."%"
+                ])
+            ]);
+            
+            
+            
         } catch (\Exception $e) {
-            // Rollback the transaction in case of error
             DB::rollBack();
             info('WordleController@store');
             info('Error: ' . $e->getMessage());
             info('On Line: ' . $e->getLine());
+    
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to Attempts',
-                'error' => $e->getMessage(), 
-                'line' => $e->getLine(), 
-                'file' => $e->getFile(), 
+                'message' => 'Failed to record attempt',
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
                 'statusCode' => 400
             ], 400);
         }
@@ -89,46 +126,72 @@ class WordController extends Controller
         }
     }
 
-    public function fetchdataAll()
-    {
-        $threeWord = ThreeWordGame::with('themeData:id,theme_name')->get();
-        // return($threeWord);
-        $fiveWord = FiveWordGame::with('themeData:id,theme_name')->get();
-        $sevenWord = SevenWordGame::with('themeData:id,theme_name')->get();
+    // public function fetchdataAll()
+    // {
+    //     $themes = Theme::select('id', 'theme_name', 'start_date', 'end_date')->get(); // Include start_date and end_date
     
-        if ($threeWord->isEmpty() && $fiveWord->isEmpty() && $sevenWord->isEmpty()) {
-            return $this->ErrorResponse('Not Found Record');
-        }
+    //     $threeWord = ThreeWordGame::with('themeData:id,theme_name')->get();
+    //     $fiveWord = FiveWordGame::with('themeData:id,theme_name')->get();
+    //     $sevenWord = SevenWordGame::with('themeData:id,theme_name')->get();
     
-        return $this->SuccessResponse(message: 'Word List', data: [
-            'threeletter' => $this->formatWords($threeWord),
-            'fiveletters' => $this->formatWords($fiveWord),
-            'sevenletters' => $this->formatWords($sevenWord)
-        ]);
-    }
+    //     if ($threeWord->isEmpty() && $fiveWord->isEmpty() && $sevenWord->isEmpty()) {
+    //         return $this->ErrorResponse('Not Found Record');
+    //     }
+    
+    //     return $this->SuccessResponse(message: 'Word List', data: [
+    //         'theme' => $themes,
+    //         'threeletter' => $this->formatWords($threeWord),
+    //         'fiveletters' => $this->formatWords($fiveWord),
+    //         'sevenletters' => $this->formatWords($sevenWord)
+    //     ]);
+    // }
+    
 
-    public function fetchAll($type)
+    // private function formatWords($words)
+    // {
+    //     return $words->map(function ($word) {
+    //         return [
+    //             'id' => $word->id,
+    //             'letter' => $word->letter,
+    //             'date' => $word->date,
+    //             'theme' => $word->themeData ? $word->themeData->theme_name : null,
+    //             'created_at' => $word->created_at,
+    //             'updated_at' => $word->updated_at
+    //         ];
+    //     });
+    // }
+    public function fetchAll()
     {
-        $data = [];
-        if ($type === 'three') {
-            $words = ThreeWordGame::with(['themeData:id,theme_name'])->latest()->get();
-            $data['threeletters'] = $this->formatWordsWithThemeIndex($words);
-        } elseif ($type === 'five') {
-            $words = FiveWordGame::with(['themeData:id,theme_name'])->latest()->get();
-            $data['fiveletters'] = $this->formatWordsWithThemeIndex($words);
-        } elseif ($type === 'seven') {
-            $words = SevenWordGame::with(['themeData:id,theme_name'])->latest()->get();
-            $data['sevenletters'] = $this->formatWordsWithThemeIndex($words);
-        } else {
-            return $this->ErrorResponse('Invalid type parameter');
+        // Fetch all themes with required columns
+        $themes = Theme::select('id', 'theme_name', 'start_date', 'end_date')->get(); 
+    
+        $data = [
+            'themes' => $themes, 
+            'threeletters' => [],
+            'fiveletters' => [],
+            'sevenletters' => [],
+        ];
+    
+        // Fetch three-letter words
+        $threeWords = ThreeWordGame::with(['themeData:id,theme_name'])->get();
+        $data['threeletters'] = $this->formatWordsWithThemeIndex($threeWords);
+    
+        // Fetch five-letter words
+        $fiveWords = FiveWordGame::with(['themeData:id,theme_name'])->get();
+        $data['fiveletters'] = $this->formatWordsWithThemeIndex($fiveWords);
+    
+        // Fetch seven-letter words
+        $sevenWords = SevenWordGame::with(['themeData:id,theme_name'])->get();
+        $data['sevenletters'] = $this->formatWordsWithThemeIndex($sevenWords);
+    
+        // Check if any data is found
+        if (empty($data['threeletters']) && empty($data['fiveletters']) && empty($data['sevenletters'])) {
+            return $this->ErrorResponse('No records found');
         }
     
-        if (empty($data[$type . 'letters'])) {
-            return $this->ErrorResponse('Not Found Record');
-        }
-    
-        return $this->SuccessResponse(message: ucfirst($type) . ' Letter Words', data: $data);
+        return $this->SuccessResponse(message: 'All Words & Themes Fetched Successfully', data: $data);
     }
+    
     
     /**
      * Format words and add theme index
@@ -151,7 +214,7 @@ class WordController extends Controller
             return [
                 'id' => $word->id,
                 'letter' => $word->letter,
-                'date' => $word->created_at->format('Y-m-d'),
+                'date' => isset($word->date) ? \Carbon\Carbon::parse($word->date)->format('Y-m-d') : null, // Fetching from DB
                 'theme' => $themeName,
                 'theme_index' => $themesOrder[$themeName] ?? null, 
                 'created_at' => $word->created_at,
@@ -160,20 +223,9 @@ class WordController extends Controller
         });
     }
     
+    
 
-    private function formatWords($words)
-    {
-        return $words->map(function ($word) {
-            return [
-                'id' => $word->id,
-                'letter' => $word->letter,
-                'date' => $word->date,
-                'theme' => $word->themeData ? $word->themeData->theme_name : null,
-                'created_at' => $word->created_at,
-                'updated_at' => $word->updated_at
-            ];
-        });
-    }
+ 
     public function getUserStatistics()
     {
         try {

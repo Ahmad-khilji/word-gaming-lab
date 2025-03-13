@@ -20,7 +20,7 @@ class SevenWordController extends Controller
         if ($request->ajax()) {
             $themes = Theme::pluck('theme_name', 'id')->toArray();
     
-            $data = SevenWordGame::latest()->get();
+            $data = SevenWordGame::get();
     
             return DataTables::of($data)
                 ->editColumn('theme', function ($row) use ($themes) {

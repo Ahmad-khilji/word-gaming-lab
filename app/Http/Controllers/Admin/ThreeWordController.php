@@ -22,7 +22,7 @@ class ThreeWordController extends Controller
         if ($request->ajax()) {
             $themes = Theme::pluck('theme_name', 'id')->toArray();
     
-            $data = ThreeWordGame::latest()->get();
+            $data = ThreeWordGame::get();
     
             return DataTables::of($data)
                 ->editColumn('theme', function ($row) use ($themes) {
