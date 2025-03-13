@@ -10,6 +10,9 @@ use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ThreeWordImport;
+use App\Models\Theme;
 
 class ThreeWordController extends Controller
 {
@@ -17,25 +20,17 @@ class ThreeWordController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $themes = [
-                1 => 'Speak',
-                2 => 'Spear',
-                3 => 'Table',
-                4 => 'Check',
-                5 => 'Chump',
-            ];
+            $themes = Theme::pluck('theme_name', 'id')->toArray();
     
-            $data = ThreeWordGame::latest()->get();
+            $data = ThreeWordGame::get();
     
             return DataTables::of($data)
                 ->editColumn('theme', function ($row) use ($themes) {
                     return $themes[$row->theme] ?? 'Unknown';
                 })
-                ->addColumn('action', function ($row) use ($themes) {
+                ->addColumn('action', function ($row) {
                     $delete = "deleteModal('" . $row->id . "','" . $row->letter . "');";
-                    $themeText = addslashes($themes[$row->theme] ?? 'Unknown');
-    
-                    $edit = "editModal('" . $row->id . "', '" . $row->letter . "', '" . $row->date . "', `" . $themeText . "`);";
+                    $edit = "editModal('" . $row->id . "', '" . addslashes($row->letter) . "', '" . $row->date . "', '" . $row->theme . "');";
     
                     return '<button onclick="' . $edit . '" class="btn btn-primary">Edit</button>
                             <button class="btn btn-danger" onclick="' . $delete . '">Delete</button>';
@@ -44,8 +39,11 @@ class ThreeWordController extends Controller
                 ->make(true);
         }
     
-        return view('admin.pages.threeword.index');
+        $themes = Theme::all(); // Fetch themes for dropdown
+        return view('admin.pages.threeword.index', compact('themes'));
     }
+    
+    
     
 
     
@@ -56,7 +54,7 @@ class ThreeWordController extends Controller
         $request->validate([
             'letter' => 'required|string|max:3',
             'date' => 'required|string',
-           'theme' => 'required|integer|between:1,5',
+           'theme' => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -84,7 +82,7 @@ class ThreeWordController extends Controller
         $request->validate([
             'letter' => 'required|string|max:3',
             'date' => 'required|string',
-           'theme' => 'required|integer|between:1,5',
+           'theme' => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -130,4 +128,54 @@ class ThreeWordController extends Controller
             return $this->ErrorResponse('Failed to delete Three Word: ' . $e->getMessage());
         }
     }
+
+   
+
+    public function importThreeWord(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt'
+        ]);
+    
+        $file = $request->file('file');
+        $handle = fopen($file, "r");
+        $headers = fgetcsv($handle); 
+    
+        // Correct Column Indexes
+        $letterColumnIndex = 0;  // Letter Column (First column)
+        $themeColumnIndex = 2;   // Theme Column (Third column)
+    
+        while (($row = fgetcsv($handle)) !== false) {
+            // **Letter Validation** (3 letters only)
+            if (!isset($row[$letterColumnIndex])) {
+                return redirect()->back()->with('error', 'Invalid CSV format.');
+            }
+    
+            $letterValue = trim($row[$letterColumnIndex]);
+            if (!preg_match('/^[a-zA-Z]{3}$/u', $letterValue)) {
+                return redirect()->back()->with('error', "Invalid value in letter column. It must have exactly 3 letters.");
+            }
+    
+            // **Theme Validation** (Database me exist hona chahiye)
+            if (!isset($row[$themeColumnIndex])) {
+                return redirect()->back()->with('error', 'Theme column is missing.');
+            }
+    
+            $themeValue = trim($row[$themeColumnIndex]);
+            $themeExists = Theme::where('theme_name', $themeValue)->exists();
+    
+            if (!$themeExists) {
+                return redirect()->back()->with('error', "Theme Name does not exist. Please add it first.");
+            }
+        }
+    
+        fclose($handle);
+    
+        // Import if all validations pass
+        Excel::import(new ThreeWordImport, $file);
+    
+        return redirect()->back()->with('success', 'CSV file imported successfully!');
+    }
+    
+    
 }

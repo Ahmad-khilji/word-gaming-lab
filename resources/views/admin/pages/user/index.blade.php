@@ -12,29 +12,47 @@
                         <label class="form-label">Change Email</label>
                         <input type="email" class="form-control" id="email">
                     </div>
-                <div class="col-6">
-                    <label class="form-label">Current Password</label>
-                    <input type="password" class="form-control" id="current_password">
+                    <div class="col-6 position-relative">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="current_password">
+                        <i class="toggle-password fa fa-eye position-absolute" onclick="togglePassword('current_password', this)" style="right: 20px; top: 44px; cursor: pointer;"></i>
+                    </div>
+                    <div class="col-6 position-relative">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password">
+                        <i class="toggle-password fa fa-eye position-absolute" onclick="togglePassword('new_password', this)" style="right: 20px; top: 44px; cursor: pointer;"></i>
+                    </div>
+                    <div class="col-6 position-relative">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password">
+                        <i class="toggle-password fa fa-eye position-absolute" onclick="togglePassword('confirm_password', this)" style="right: 20px; top: 44px; cursor: pointer;"></i>
+                    </div>
                 </div>
-                <div class="col-6">
-                    <label class="form-label">New Password</label>
-                    <input type="password" class="form-control" id="new_password">
-                </div>
-                <div class="col-6">
-                    <label class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="confirm_password">
-                </div>
-            </div>
                 <div class="text-end mt-3">
                     <button type="submit" class="btn btn-primary">Change Password</button>
                 </div>
             </form>
+            
         </div>
     </div>
 </div>
 @endsection
 
 @section('scripts')
+<script>
+    function togglePassword(fieldId, icon) {
+        let field = document.getElementById(fieldId);
+        if (field.type === "password") {
+            field.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            field.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+</script>
 <script>
     function changePassword() {
         let formData = new FormData();

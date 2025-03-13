@@ -1,48 +1,17 @@
 @extends('admin.layouts.app')
 @section('title')
-    Admin Dashboard | Solar Energy
+    Admin Dashboard
 @endsection
 @section('content')
-    <div class="pagetitle d-flex justify-content-between">
-      
-
-        @if (session('error'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    title: "Error!",
-                    text: "{{ session('error') }}",
-                    icon: "error",
-                    confirmButtonText: "OK"
-                });
-            });
-        </script>
-    @endif
-
-
-    @if (session('success'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    title: "Success!",
-                    text: "{{ session('success') }}",
-                    icon: "success",
-                    confirmButtonText: "OK"
-                });
-            });
-        </script>
-    @endif
-
-   
-    </div><!-- End Page Title -->
+  
 
     <!-- create new category modal -->
     <div class="modal fade" id="createNewCategory" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitleCreate">Create Five Letter</h5>
-                    <h5 style="display: none;" class="modal-title" id="modalTitleupdate">Edit Five Letter</h5>
+                    <h5 class="modal-title" id="modalTitleCreate">Create New Theme</h5>
+                    <h5 style="display: none;" class="modal-title" id="modalTitleupdate">Edit Theme</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -50,37 +19,28 @@
                     <form class="row g-3">
 
                         <div class="col-6">
-                            <label for="letter" class="form-label">Word</label>
-                            <input type="text" class="form-control" id="letter">
+                            <label for="theme_name" class="form-label">Theme Name</label>
+                            <input type="text" class="form-control" id="theme_name">
                         </div>
                         <div class="col-6">
-                            <label for="date" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" onchange="setMinEndDate()">
+                        </div>
+                        <div class="col-6">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date">
                         </div>
 
-
-                        <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <select class="form-select" name="theme" id="theme" aria-label="Category">
-                                    <option value="">Select Theme</option>
-                                    @foreach ($themes as $theme)
-                                        <option value="{{ $theme->id }}">{{ $theme->theme_name }}</option>
-                                    @endforeach
-                                </select>
-                                <label for="theme" class="form-label">Theme</label>
-                            </div>
-                        </div>
-                        
 
                     </form>
                     <!-- Vertical Form -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="savefiveWord()" id="saveCategoryLoader">Save
-                        Five Letter</button>
-                    <button style="display: none;" type="button" class="btn btn-primary" onclick="updatefiveWord()"
-                        id="updateCategoryLoader">Update Five Letter</button>
+                    <button type="button" class="btn btn-primary" onclick="saveTheme()" id="saveCategoryLoader">Save
+                        Theme</button>
+                    <button style="display: none;" type="button" class="btn btn-primary" onclick="updateTheme()"
+                        id="updateCategoryLoader">Update Theme</button>
                 </div>
             </div>
         </div>
@@ -91,7 +51,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Five Letter</h5>
+                    <h5 class="modal-title">Edit Theme</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -99,33 +59,25 @@
                     <form class="row g-3">
 
                         <div class="col-6">
-                            <label for="letter_edit" class="form-label">Word</label>
-                            <input type="text" class="form-control" id="letter_edit">
+                            <label for="theme_name_edit" class="form-label">Theme Name</label>
+                            <input type="text" class="form-control" id="theme_name_edit">
                         </div>
 
                         <div class="col-6">
-                            <label for="date_edit" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date_edit">
+                            <label for="start_date_edit" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date_edit">
                         </div>
-
-                        <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <select class="form-select" name="theme" id="theme_edit" aria-label="Category">
-                                    <option value="">Select Theme</option>
-                                    @foreach ($themes as $theme)
-                                        <option value="{{ $theme->id }}">{{ $theme->theme_name }}</option>
-                                    @endforeach
-                                </select>
-                                <label for="theme_edit" class="form-label">Theme</label>
-                            </div>
+                        <div class="col-6">
+                            <label for="end_date_edit" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date_edit">
                         </div>
 
                     </form><!-- Vertical Form -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="updatefiveWord()"
-                        id="updateCategoryLoader">Update Five Letter</button>
+                    <button type="button" class="btn btn-primary" onclick="updateTheme()" id="updateCategoryLoader">Update
+                        Theme</button>
                 </div>
             </div>
         </div>
@@ -135,7 +87,7 @@
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete Five Letter</h5>
+                    <h5 class="modal-title">Confirm Delete Theme</h5>
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -145,7 +97,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                    <button type="button" class="btn btn-primary" onclick="deletefiveWord()"
+                    <button type="button" class="btn btn-primary" onclick="deleteTheme()"
                         id="deleteCategoryLoader">Yes</button>
                 </div>
             </div>
@@ -153,39 +105,28 @@
     </div>
 
 
-
-
-
-
     <section class="section">
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
-                          <div class="class pagetitle">
-                            <h1>Five Letter Game</h1>
-                          </div>
-                          <form id="uploadForm" class="d-flex justify-content-end " action="{{ route('super_admin.fiveword.import') }}"
-                          method="POST" enctype="multipart/form-data">
-                          @csrf
-                          <button type="button" class="btn btn-success" id="importCsvBtn"
-                              style="width: 167px; height: 35px;">Import CSV</button>
-                          <input class="form-control d-none" id="formFile" type="file" name="file" accept=".csv" required>
-                      </form>
-                            <div class="mt-3 mb-3">
-                                <button data-bs-toggle="modal" data-bs-target="#createNewCategory" type="button"
-                                    name="button" class="btn btn-primary">Create Five Letter</button>
-                            </div>
+                        <div class="d-flex justify-content-between mt-3 mb-3 align-items-center">
+                           
+                                <div class="pagetitle">
+                                    <h1>Add New Theme</h1>
+                                </div>
+                                <button data-bs-toggle="modal" onclick="openCreateThemeModal()" data-bs-target="#createNewCategory" type="button"
+                                    name="button" class="btn btn-primary">Create New Theme</button>
+                           
                         </div>
                         <!-- Table with stripped rows -->
                         <table id="category-table" class="table">
                             <thead>
                                 <tr>
-                                    {{-- <th>Title</th> --}}
-                                    <th>Word</th>
-                                    <th>Date</th>
-                                    <th>Theme</th>
+
+                                    <th>Theme Name</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -202,39 +143,6 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.getElementById("importCsvBtn").addEventListener("click", function() {
-            Swal.fire({
-                title: "Upload CSV File",
-                html: `
-            <img src="{{ asset('admin/assets/img/fiveword.png') }}" alt="Upload Image" class="mb-3 w-100 object-fit-cover">
-            <input type="file" id="popupFileInput" class="form-control mb-2" accept=".csv">
-            <span id="popupFileName"></span>
-        `,
-                showCancelButton: true,
-                confirmButtonText: "Upload",
-                cancelButtonText: "Cancel",
-                didOpen: () => {
-                    const fileInput = document.getElementById("popupFileInput");
-                    fileInput.addEventListener("change", function() {
-                        document.getElementById("popupFileName").innerText = "Selected: " +
-                            fileInput.files[0].name;
-                    });
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const fileInput = document.getElementById("popupFileInput");
-                    if (fileInput.files.length > 0) {
-                        document.getElementById("formFile").files = fileInput.files;
-                        document.getElementById("uploadForm").submit();
-                    } else {
-                        Swal.fire("No File Selected", "Please choose a file to upload.", "warning");
-                    }
-                }
-            });
-        });
-    </script>
     <script>
         let table;
         $(document).ready(function() {
@@ -243,7 +151,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '{{ route('super_admin.fiveword.index') }}',
+                    url: '{{ route('super_admin.theme.index') }}',
                     type: 'GET',
                     dataSrc: function(response) {
                         console.log('Server response:', response); // Debug server response
@@ -251,18 +159,18 @@
                     }
                 },
                 columns: [{
-                        data: 'letter',
-                        name: 'letter',
+                        data: 'theme_name',
+                        name: 'theme_name',
                         orderable: false
                     },
                     {
-                        data: 'date',
-                        name: 'date',
+                        data: 'start_date',
+                        name: 'start_date',
                         orderable: false
                     },
                     {
-                        data: 'theme',
-                        name: 'theme',
+                        data: 'end_date',
+                        name: 'end_date',
                         orderable: false
                     },
                     {
@@ -271,45 +179,96 @@
                         orderable: false,
                         searchable: false,
                         className: "text-center"
+
                     }
                 ]
             });
         });
 
-        function savefiveWord() {
-            // Get form data
+        function setMinEndDate() {
+            let startDate = document.getElementById('start_date').value;
+            document.getElementById('end_date').min = startDate;
+        }
+
+
+        function openCreateThemeModal() {
+            $('#modalTitleCreate').show();
+            $('#modalTitleupdate').hide();
+            $('#saveCategoryLoader').show();
+            $('#updateCategoryLoader').hide();
+
+            // Inputs reset
+            $('#theme_name').val('');
+            $('#start_date').val('');
+            $('#end_date').val('');
+
+            // Fetch last theme's end_date
+            $.ajax({
+                url: "{{ route('super_admin.theme.getLastThemeDate') }}",
+                type: "GET",
+                success: function(response) {
+                    console.log("Response from server:", response); // Debugging line
+
+                    if (response.success && response.end_date) {
+                        let nextStartDate = new Date(response.end_date);
+                        nextStartDate.setDate(nextStartDate.getDate() + 1);
+
+                        let formattedDate = nextStartDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+                        console.log("Formatted Start Date:", formattedDate); // Debugging line
+
+                        $('#start_date').val(formattedDate);
+                        $('#start_date').attr("min", formattedDate);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", error);
+                }
+            });
+
+
+            // Open modal
+            $('#createNewCategory').modal('show');
+        }
+
+
+        function saveTheme() {
             $('#saveCategoryLoader').addClass('loading');
-            const letter = $('#letter').val();
-            const date = $('#date').val();
-            const theme = $('#theme').val();
 
-            // Prepare FormData
+            const theme_name = $('#theme_name').val();
+            const start_date = $('#start_date').val();
+            const end_date = $('#end_date').val();
+
+            if (new Date(start_date) >= new Date(end_date)) {
+                toastifyError('End Date must be greater than Start Date.');
+                $('#saveCategoryLoader').removeClass('loading');
+                return;
+            }
+
             let formData = new FormData();
-            formData.append('letter', letter);
-            formData.append('date', date);
-            formData.append('theme', theme);
-            let url = "{{ route('super_admin.fiveword.store') }}";
+            formData.append('theme_name', theme_name);
+            formData.append('start_date', start_date);
+            formData.append('end_date', end_date);
 
-            // AJAX Request
+            let url = "{{ route('super_admin.theme.store') }}";
+
             $.ajax({
                 type: "POST",
                 url: url,
                 data: formData,
-                contentType: false, // Required for FormData
-                processData: false, // Prevent jQuery from processing the data
+                contentType: false,
+                processData: false,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     $('#saveCategoryLoader').removeClass('loading');
                     if (response.status) {
-                        // Success response
-                        $('#letter').val('');
-                        $('#date').val('');
-                        $('#theme').val('');
-                        $('#createNewCategory').modal('hide'); // Hide modal
-                        toastifySuccess(response.message); // Display success message
-                        table.draw(); // Reload data table
+                        $('#theme_name').val('');
+                        $('#start_date').val('');
+                        $('#end_date').val('');
+                        $('#createNewCategory').modal('hide');
+                        toastifySuccess(response.message);
+                        table.draw();
                     } else {
                         toastifyError(response.message || 'Something went wrong.');
                     }
@@ -332,47 +291,64 @@
             });
         }
 
-        function editModal(id, letter, date, theme) {
+
+
+        function editModal(id, theme_name, start_date, end_date) {
             $('#updateCategoryLoader').attr('data-id', id);
-            $('#letter_edit').val(letter);
-            $('#date_edit').val(date);
-            $('#theme_edit').val(theme).change();
+            $('#theme_name_edit').val(theme_name);
+            $('#start_date_edit').val(start_date);
+            $('#end_date_edit').val(end_date).change();
             $('#editCategoryModal').modal('show');
         }
 
-        function updatefiveWord() {
+        function updateTheme() {
             // Get form data
             $('#updateCategoryLoader').addClass('loading');
-            const letter = $('#letter_edit').val();
-            const date = $('#date_edit').val();
-            const theme = $('#theme_edit').val();
+            const theme_name = $('#theme_name_edit').val();
+            const start_date = $('#start_date_edit').val();
+            const end_date = $('#end_date_edit').val();
 
+            // Get today's date in YYYY-MM-DD format
+            let today = new Date().toISOString().split('T')[0];
+
+            // Validation Rules
+            if (start_date < today) {
+                toastifyError("Start date cannot be in the past.");
+                $('#updateCategoryLoader').removeClass('loading');
+                return;
+            }
+
+            if (end_date < start_date) {
+                toastifyError("End date cannot be earlier than the start date.");
+                $('#updateCategoryLoader').removeClass('loading');
+                return;
+            }
 
             // Prepare FormData
             let formData = new FormData();
-            formData.append('letter', letter);
-            formData.append('date', date);
-            formData.append('theme', theme);
+            formData.append('theme_name', theme_name);
+            formData.append('start_date', start_date);
+            formData.append('end_date', end_date);
             let id = $('#updateCategoryLoader').attr("data-id");
-            let routeTemplate = "{{ route('super_admin.fiveword.update', ['id' => ':id']) }}";
+            let routeTemplate = "{{ route('super_admin.theme.update', ['id' => ':id']) }}";
             let url = routeTemplate.replace(':id', id);
+
             // AJAX Request
             $.ajax({
                 type: "POST",
                 url: url,
                 data: formData,
-                contentType: false, // Required for FormData
-                processData: false, // Prevent jQuery from processing the data
+                contentType: false,
+                processData: false,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     $('#updateCategoryLoader').removeClass('loading');
                     if (response.status) {
-                        // Success response
-                        $('#editCategoryModal').modal('hide'); // Hide modal
-                        toastifySuccess(response.message); // Display success message
-                        table.draw(); // Reload data table
+                        $('#editCategoryModal').modal('hide');
+                        toastifySuccess(response.message);
+                        table.draw();
                     } else {
                         toastifyError(response.message || 'Something went wrong.');
                     }
@@ -395,16 +371,17 @@
             });
         }
 
+
         function deleteModal(id, name) {
             $('#deleteCategoryLoader').attr('data-id', id);
-            $('#category_del_title').text('Are You Sure you want to delete this Five Word?' + ' ' + name);
+            $('#category_del_title').text('Are You Sure you want to delete this Theme Name?' + ' ' + name);
             $('#deleteCategory').modal('show');
         }
 
-        function deletefiveWord() {
+        function deleteTheme() {
             $('#deleteCategoryLoader').addClass('loading');
             let dataId = $('#deleteCategoryLoader').attr("data-id");
-            let url = "{{ route('super_admin.fiveword.delete') }}";
+            let url = "{{ route('super_admin.theme.delete') }}";
             $.ajax({
                 type: "post",
                 url: url,

@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Imports\SevenWordImport;
 use App\Models\SevenWordGame;
+use App\Models\Theme;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class SevenWordController extends Controller
@@ -15,25 +18,17 @@ class SevenWordController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $themes = [
-                1 => 'Speak',
-                2 => 'Spear',
-                3 => 'Table',
-                4 => 'Check',
-                5 => 'Chump',
-            ];
+            $themes = Theme::pluck('theme_name', 'id')->toArray();
     
-            $data = SevenWordGame::latest()->get();
+            $data = SevenWordGame::get();
     
             return DataTables::of($data)
                 ->editColumn('theme', function ($row) use ($themes) {
-                    return $themes[$row->theme] ?? 'Unknown'; // Number ko word me convert
+                    return $themes[$row->theme] ?? 'Unknown';
                 })
-                ->addColumn('action', function ($row) use ($themes) {
+                ->addColumn('action', function ($row) {
                     $delete = "deleteModal('" . $row->id . "','" . $row->letter . "');";
-                    $themeText = addslashes($themes[$row->theme] ?? 'Unknown'); // Theme number -> Word
-    
-                    $edit = "editModal('" . $row->id . "', '" . $row->letter . "', '" . $row->date . "', `" . $themeText . "`);";
+                    $edit = "editModal('" . $row->id . "', '" . addslashes($row->letter) . "', '" . $row->date . "', '" . $row->theme . "');";
     
                     return '<button onclick="' . $edit . '" class="btn btn-primary">Edit</button>
                             <button class="btn btn-danger" onclick="' . $delete . '">Delete</button>';
@@ -42,7 +37,8 @@ class SevenWordController extends Controller
                 ->make(true);
         }
     
-        return view('admin.pages.seven.index');
+        $themes = Theme::all(); // Fetch themes for dropdown
+        return view('admin.pages.seven.index', compact('themes'));
     }
     
     public function store(Request $request)
@@ -51,7 +47,7 @@ class SevenWordController extends Controller
         $request->validate([
             'letter' => 'required|string|max:7',
             'date' => 'required|string',
-            'theme' => 'required|integer|between:1,5',
+            'theme' => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -79,7 +75,7 @@ class SevenWordController extends Controller
         $request->validate([
             'letter' => 'required|string|max:7',
             'date' => 'required|string',
-         'theme' => 'required|integer|between:1,5',
+         'theme' => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -125,4 +121,50 @@ class SevenWordController extends Controller
             return $this->ErrorResponse('Failed to delete Seven Word: ' . $e->getMessage());
         }
     }
-}
+    public function importSevenWord(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt'
+        ]);
+    
+        $file = $request->file('file');
+        $handle = fopen($file, "r");
+        $headers = fgetcsv($handle); 
+    
+        // Letter aur theme ka column index
+        $letterColumnIndex = 0;  // Suppose first column letter ka hai
+        $themeColumnIndex = 2;   // Suppose second column theme ka hai
+    
+        while (($row = fgetcsv($handle)) !== false) {
+            // **Letter Validation** (7 letters only)
+            if (!isset($row[$letterColumnIndex])) {
+                return redirect()->back()->with('error', 'Invalid CSV format.');
+            }
+    
+            $letterValue = trim($row[$letterColumnIndex]);
+            if (!preg_match('/^[a-zA-Z]{7}$/u', $letterValue)) {
+                return redirect()->back()->with('error', "Invalid value in letter column. It must have exactly 7 letters.");
+            }
+    
+            // **Theme Validation** (Database me exist hona chahiye)
+            if (!isset($row[$themeColumnIndex])) {
+                return redirect()->back()->with('error', 'Theme column is missing.');
+            }
+    
+            $themeValue = trim($row[$themeColumnIndex]);
+            $themeExists = Theme::where('theme_name', $themeValue)->exists();
+    
+            if (!$themeExists) {
+                return redirect()->back()->with('error', "Theme Name does not exist. Please add it first.");
+            }
+        }
+    
+        fclose($handle);
+    
+        // Import if all validations pass
+        Excel::import(new SevenWordImport, $file);
+    
+        return redirect()->back()->with('success', 'CSV file imported successfully!');
+    }
+    
+}    

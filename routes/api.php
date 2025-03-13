@@ -20,11 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-Route::post('/start-game', [WordleController::class, 'startGame']);
-Route::post('/guess/{id}', [WordleController::class, 'makeGuess']);
-Route::get('/leaderboard', [WordleController::class, 'leaderboard']);
-Route::get('/fetch/all', [WordController::class, 'fetchAll']);
+Route::get('/fetch/all', [WordController::class, 'fetchdataAll']);
+Route::get('/words/all', [WordController::class, 'fetchAll']);
 Route::post('/user/attempt', [WordController::class, 'userAttempt']);
 Route::get('/game/statistics', [WordController::class, 'getStatistics']);
 Route::get('/get/user/statistics', [WordController::class, 'getUserStatistics']);
